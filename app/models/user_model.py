@@ -8,6 +8,7 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID, ENUM
 from sqlalchemy.orm import Mapped, mapped_column
 from app.database import Base
+from sqlalchemy.orm import relationship
 
 class UserRole(Enum):
     """Enumeration of user roles within the application, stored as ENUM in the database."""
@@ -42,6 +43,7 @@ class User(Base):
         is_locked (bool): Flag indicating if the account is locked.
         created_at (datetime): Timestamp when the user was created, set by the server.
         updated_at (datetime): Timestamp of the last update, set by the server.
+        events (relationship): Relationship to the Event model, representing events created by the user.
 
     Methods:
         lock_account(): Locks the user account.
@@ -73,6 +75,7 @@ class User(Base):
     verification_token = Column(String, nullable=True)
     email_verified: Mapped[bool] = Column(Boolean, default=False, nullable=False)
     hashed_password: Mapped[str] = Column(String(255), nullable=False)
+    events = relationship("Event", back_populates="creator")
 
 
     def __repr__(self) -> str:
