@@ -40,6 +40,7 @@ jobs:
 
   build-and-push-docker:
     needs: test
+    if: always() #Always run this job even if the test job fails for now
     runs-on: ubuntu-latest
     # yamllint disable-line
     environment: development # Specify the environment for this job
