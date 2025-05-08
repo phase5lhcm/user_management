@@ -17,7 +17,7 @@ class EventUpdate(EventBase):
     """Schema for updating an existing event."""
     pass
 
-#To structure and serialize outgoing event data
+#To structure and serialize outgoing event data, we define the EventOut schema.
 class EventOut(EventBase):
     """Schema for returning event data to the client (e.g., GET or POST response)"""
     id: int
@@ -26,3 +26,5 @@ class EventOut(EventBase):
     class Config:
         orm_mode = True
         from_attributes = True
+
+
