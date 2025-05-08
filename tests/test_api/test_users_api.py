@@ -11,10 +11,9 @@ from app.routers.user_routes import admin_or_manager_only
 from app.dependencies import  get_email_service
 
 
-
 # Example of a test function using the async_client fixture
 @pytest.mark.asyncio
-async def test_create_user_access_denied(async_client):
+async def test_create_user_access_denied(async_client, email_service):
 
     headers = {"Authorization": "Bearer faketoken"}
     user_data = {
@@ -23,11 +22,9 @@ async def test_create_user_access_denied(async_client):
         "password": "sS#fdasrongPassword123!",
     }
 
-    response = await async_client.post("/users-me/")
-    print("🚨 Response:", response.status_code)
-    print("🚨 Response JSON:", response.json())
-    assert response.status_code == 404
-
+    response = await async_client.post("/users/", headers=headers, json=user_data)
+    assert response.status_code == 403
+    app.dependency_overrides.clear()
 
 # # You can similarly refactor other test functions to use the async_client fixture
 # @pytest.mark.asyncio
