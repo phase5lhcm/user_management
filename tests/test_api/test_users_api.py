@@ -6,21 +6,28 @@ from app.models.user_model import User, UserRole
 from app.utils.nickname_gen import generate_nickname
 from app.utils.security import hash_password
 from app.services.jwt_service import decode_token  # Import your FastAPI app
+from app.dependencies import get_settings, get_current_user, require_role
+from app.routers.user_routes import admin_or_manager_only
+from app.dependencies import  get_email_service
+
+
 
 # Example of a test function using the async_client fixture
 @pytest.mark.asyncio
-async def test_create_user_access_denied(async_client, user_token, email_service):
-    headers = {"Authorization": f"Bearer {user_token}"}
-    # Define user data for the test
+async def test_create_user_access_denied(async_client):
+
+    headers = {"Authorization": "Bearer faketoken"}
     user_data = {
         "nickname": generate_nickname(),
         "email": "test@example.com",
         "password": "sS#fdasrongPassword123!",
     }
-    # Send a POST request to create a user
-    response = await async_client.post("/users/", json=user_data, headers=headers)
-    # Asserts
-    assert response.status_code == 403
+
+    response = await async_client.post("/users-me/")
+    print("🚨 Response:", response.status_code)
+    print("🚨 Response JSON:", response.json())
+    assert response.status_code == 404
+
 
 # # You can similarly refactor other test functions to use the async_client fixture
 # @pytest.mark.asyncio

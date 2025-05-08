@@ -36,6 +36,10 @@ from app.utils.security import hash_password
 from app.utils.template_manager import TemplateManager
 from app.services.email_service import EmailService
 from app.services.jwt_service import create_access_token
+from app.dependencies import get_email_service
+from app.routers.user_routes import admin_or_manager_only
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import text
 
 fake = Faker()
 
@@ -55,10 +59,10 @@ def email_service():
 
 
 # this is what creates the http client for your api tests
-@pytest.fixture(scope="function")
-async def async_client(db_session):
+@pytest.fixture
+async def async_client(db_session, email_service):
+
     async with AsyncClient(app=app, base_url="http://testserver") as client:
-        app.dependency_overrides[get_db] = lambda: db_session
         try:
             yield client
         finally:
@@ -75,11 +79,14 @@ def initialize_database():
 @pytest.fixture(scope="function", autouse=True)
 async def setup_database():
     async with engine.begin() as conn:
+
         await conn.run_sync(Base.metadata.create_all)
+
     yield
+
     async with engine.begin() as conn:
-        # you can comment out this line during development if you are debugging a single test
-         await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.drop_all)
+
     await engine.dispose()
 
 @pytest.fixture(scope="function")

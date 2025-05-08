@@ -14,7 +14,7 @@
   - Since there is no real user data currently, you don't need to worry about database upgrades, but Alembic is still required to install the database tables.
 
 5. Run the project:
-  - `docker compose up --build`
+  - `c`
   - Set up PGAdmin at `localhost:5050` (see docker compose for login details)
   - View logs for the app: `docker compose logs fastapi -f`
   - Run tests: `docker compose exec fastapi pytest`
