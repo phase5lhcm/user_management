@@ -11,6 +11,7 @@ from app.dependencies import get_settings
 from app.routers import user_routes
 from app.utils.api_description import getDescription
 from fastapi.routing import APIRoute
+import traceback
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -34,17 +35,18 @@ app = FastAPI(
     lifespan=lifespan 
 )
 
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=["*"],
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(user_routes.router)
 
 
-# @app.exception_handler(Exception)
-# async def exception_handler(request, exc):
-#     return JSONResponse(status_code=500, content={"message": "An unexpected error occurred."})
+@app.exception_handler(Exception)
+async def exception_handler(request, exc):
+    print("🚨 Unhandled Exception:", traceback.format_exc())  # Add this
+    return JSONResponse(status_code=500, content={"message": "An unexpected error occurred."})

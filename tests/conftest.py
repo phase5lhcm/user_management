@@ -38,6 +38,7 @@ from app.services.email_service import EmailService
 from app.services.jwt_service import create_access_token
 from app.dependencies import get_email_service
 from app.routers.user_routes import admin_or_manager_only
+from app.dependencies import get_current_user
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
 
@@ -58,16 +59,27 @@ def email_service():
     return email_service
 
 
-# this is what creates the http client for your api tests
 @pytest.fixture
 async def async_client(db_session, email_service):
+    app.dependency_overrides[get_db] = lambda: db_session
+    app.dependency_overrides[get_email_service] = lambda: email_service
+    app.dependency_overrides[get_current_user] = lambda: {
+        "id": "fake-id",
+        "email": "unauthorized@example.com",
+        "role": UserRole.AUTHENTICATED
+    }
+
+    app.dependency_overrides[admin_or_manager_only] = lambda: {
+        "id": "fake-id",
+        "email": "unauthorized@example.com",
+        "role": UserRole.AUTHENTICATED
+    }
 
     async with AsyncClient(app=app, base_url="http://testserver") as client:
         try:
             yield client
         finally:
             app.dependency_overrides.clear()
-
 @pytest.fixture(scope="session", autouse=True)
 def initialize_database():
     try:
