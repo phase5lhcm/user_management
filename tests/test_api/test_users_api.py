@@ -13,18 +13,17 @@ from app.dependencies import  get_email_service
 
 # Example of a test function using the async_client fixture
 @pytest.mark.asyncio
-async def test_create_user_access_denied(async_client, email_service):
+async def test_create_user_access_denied(async_client_factory):
+    async with async_client_factory(override_user=True, role="AUTHENTICATED") as client:
+        headers = {"Authorization": "Bearer faketoken"}
+        user_data = {
+            "nickname": generate_nickname(),
+            "email": "test@example.com",
+            "password": "sS#fdasrongPassword123!",
+        }
 
-    headers = {"Authorization": "Bearer faketoken"}
-    user_data = {
-        "nickname": generate_nickname(),
-        "email": "test@example.com",
-        "password": "sS#fdasrongPassword123!",
-    }
-
-    response = await async_client.post("/users/", headers=headers, json=user_data)
-    assert response.status_code == 403
-    app.dependency_overrides.clear()
+        response = await client.post("/users/", headers=headers, json=user_data)
+        assert response.status_code == 403
 
 # You can similarly refactor other test functions to use the async_client fixture
 @pytest.mark.asyncio
@@ -59,6 +58,13 @@ async def test_retrieve_user_access_allowed(async_client, admin_user, admin_toke
 #     response = await async_client.put(f"/users/{admin_user.id}", json=updated_data, headers=headers)
 #     assert response.status_code == 200
 #     assert response.json()["email"] == updated_data["email"]
+
+@pytest.mark.asyncio
+async def test_update_user_email_access_allowed(async_client_factory, admin_token, admin_user):
+    async with async_client_factory(override_user=False) as client:
+        headers = {"Authorization": f"Bearer {admin_token}"}
+        response = await client.put(f"/users/{admin_user.id}", json={"email": "new@example.com"}, headers=headers)
+        assert response.status_code == 200
 
 
 # @pytest.mark.asyncio
