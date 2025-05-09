@@ -69,12 +69,6 @@ async def async_client(db_session, email_service):
         "role": UserRole.AUTHENTICATED
     }
 
-    app.dependency_overrides[admin_or_manager_only] = lambda: {
-        "id": "fake-id",
-        "email": "unauthorized@example.com",
-        "role": UserRole.AUTHENTICATED
-    }
-
     async with AsyncClient(app=app, base_url="http://testserver") as client:
         try:
             yield client

@@ -26,19 +26,24 @@ async def test_create_user_access_denied(async_client, email_service):
     assert response.status_code == 403
     app.dependency_overrides.clear()
 
-# # You can similarly refactor other test functions to use the async_client fixture
-# @pytest.mark.asyncio
-# async def test_retrieve_user_access_denied(async_client, verified_user, user_token):
-#     headers = {"Authorization": f"Bearer {user_token}"}
-#     response = await async_client.get(f"/users/{verified_user.id}", headers=headers)
-#     assert response.status_code == 403
+# You can similarly refactor other test functions to use the async_client fixture
+@pytest.mark.asyncio
+async def test_retrieve_user_access_denied(async_client, verified_user, user_token):
+    headers = {"Authorization": f"Bearer {user_token}"}
+    response = await async_client.get(f"/users/{verified_user.id}", headers=headers)
+    assert response.status_code == 403
 
-# @pytest.mark.asyncio
-# async def test_retrieve_user_access_allowed(async_client, admin_user, admin_token):
-#     headers = {"Authorization": f"Bearer {admin_token}"}
-#     response = await async_client.get(f"/users/{admin_user.id}", headers=headers)
-#     assert response.status_code == 200
-#     assert response.json()["id"] == str(admin_user.id)
+@pytest.mark.asyncio
+async def test_retrieve_user_access_allowed(async_client, admin_user, admin_token):
+    app.dependency_overrides[get_current_user] = lambda: {
+    "user_id": "admin-id",
+    "role": "ADMIN"
+}
+    headers = {"Authorization": f"Bearer {admin_token}"}
+    response = await async_client.get(f"/users/{admin_user.id}", headers=headers)
+    
+    assert response.status_code == 200
+    assert response.json()["id"] == str(admin_user.id)
 
 # @pytest.mark.asyncio
 # async def test_update_user_email_access_denied(async_client, verified_user, user_token):
