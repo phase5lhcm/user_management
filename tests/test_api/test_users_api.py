@@ -6,35 +6,44 @@ from app.models.user_model import User, UserRole
 from app.utils.nickname_gen import generate_nickname
 from app.utils.security import hash_password
 from app.services.jwt_service import decode_token  # Import your FastAPI app
+from app.dependencies import get_settings, get_current_user, require_role
+from app.routers.user_routes import admin_or_manager_only
+from app.dependencies import  get_email_service
+
 
 # Example of a test function using the async_client fixture
 @pytest.mark.asyncio
-async def test_create_user_access_denied(async_client, user_token, email_service):
-    headers = {"Authorization": f"Bearer {user_token}"}
-    # Define user data for the test
+async def test_create_user_access_denied(async_client, email_service):
+
+    headers = {"Authorization": "Bearer faketoken"}
     user_data = {
         "nickname": generate_nickname(),
         "email": "test@example.com",
         "password": "sS#fdasrongPassword123!",
     }
-    # Send a POST request to create a user
-    response = await async_client.post("/users/", json=user_data, headers=headers)
-    # Asserts
+
+    response = await async_client.post("/users/", headers=headers, json=user_data)
+    assert response.status_code == 403
+    app.dependency_overrides.clear()
+
+# You can similarly refactor other test functions to use the async_client fixture
+@pytest.mark.asyncio
+async def test_retrieve_user_access_denied(async_client, verified_user, user_token):
+    headers = {"Authorization": f"Bearer {user_token}"}
+    response = await async_client.get(f"/users/{verified_user.id}", headers=headers)
     assert response.status_code == 403
 
-# # You can similarly refactor other test functions to use the async_client fixture
-# @pytest.mark.asyncio
-# async def test_retrieve_user_access_denied(async_client, verified_user, user_token):
-#     headers = {"Authorization": f"Bearer {user_token}"}
-#     response = await async_client.get(f"/users/{verified_user.id}", headers=headers)
-#     assert response.status_code == 403
-
-# @pytest.mark.asyncio
-# async def test_retrieve_user_access_allowed(async_client, admin_user, admin_token):
-#     headers = {"Authorization": f"Bearer {admin_token}"}
-#     response = await async_client.get(f"/users/{admin_user.id}", headers=headers)
-#     assert response.status_code == 200
-#     assert response.json()["id"] == str(admin_user.id)
+@pytest.mark.asyncio
+async def test_retrieve_user_access_allowed(async_client, admin_user, admin_token):
+    app.dependency_overrides[get_current_user] = lambda: {
+    "user_id": "admin-id",
+    "role": "ADMIN"
+}
+    headers = {"Authorization": f"Bearer {admin_token}"}
+    response = await async_client.get(f"/users/{admin_user.id}", headers=headers)
+    
+    assert response.status_code == 200
+    assert response.json()["id"] == str(admin_user.id)
 
 # @pytest.mark.asyncio
 # async def test_update_user_email_access_denied(async_client, verified_user, user_token):

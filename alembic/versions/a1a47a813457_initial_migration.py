@@ -1,8 +1,8 @@
 """initial migration
 
-Revision ID: 25d814bc83ed
+Revision ID: a1a47a813457
 Revises: 
-Create Date: 2024-04-21 09:51:44.977108
+Create Date: 2025-05-08 09:33:42.356287
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '25d814bc83ed'
+revision: str = 'a1a47a813457'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -31,13 +31,13 @@ def upgrade() -> None:
     sa.Column('linkedin_profile_url', sa.String(length=255), nullable=True),
     sa.Column('github_profile_url', sa.String(length=255), nullable=True),
     sa.Column('role', sa.Enum('ANONYMOUS', 'AUTHENTICATED', 'MANAGER', 'ADMIN', name='UserRole', create_constraint=True), nullable=False),
-    sa.Column('is_professional', sa.Boolean(), nullable=True),
+    sa.Column('is_professional', sa.Boolean(), nullable=False),
     sa.Column('professional_status_updated_at', sa.DateTime(timezone=True), nullable=True),
     sa.Column('last_login_at', sa.DateTime(timezone=True), nullable=True),
-    sa.Column('failed_login_attempts', sa.Integer(), nullable=True),
-    sa.Column('is_locked', sa.Boolean(), nullable=True),
-    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
-    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+    sa.Column('failed_login_attempts', sa.Integer(), nullable=False),
+    sa.Column('is_locked', sa.Boolean(), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('verification_token', sa.String(), nullable=True),
     sa.Column('email_verified', sa.Boolean(), nullable=False),
     sa.Column('hashed_password', sa.String(length=255), nullable=False),

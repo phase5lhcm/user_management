@@ -77,9 +77,10 @@ async def get_user(user_id: UUID, request: Request, db: AsyncSession = Depends(g
 
 # This approach not only ensures that the API is secure and efficient but also promotes a better client
 # experience by adhering to REST principles and providing self-discoverable operations.
-
+admin_or_manager_only = require_role(["ADMIN", "MANAGER"])
 @router.put("/users/{user_id}", response_model=UserResponse, name="update_user", tags=["User Management Requires (Admin or Manager Roles)"])
-async def update_user(user_id: UUID, user_update: UserUpdate, request: Request, db: AsyncSession = Depends(get_db), token: str = Depends(oauth2_scheme), current_user: dict = Depends(require_role(["ADMIN", "MANAGER"]))):
+async def update_user(user_id: UUID, user_update: UserUpdate, request: Request, email_service: EmailService = Depends(get_email_service),
+                       db: AsyncSession = Depends(get_db), token: str = Depends(oauth2_scheme), current_user: dict = Depends(admin_or_manager_only)):
     """
     Update user information.
 
@@ -163,6 +164,7 @@ async def create_user(user: UserCreate, request: Request, db: AsyncSession = Dep
         updated_at=created_user.updated_at,
         links=create_user_links(created_user.id, request)
     )
+
 
 
 @router.get("/users/", response_model=UserListResponse, tags=["User Management Requires (Admin or Manager Roles)"])
