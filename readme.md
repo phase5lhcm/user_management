@@ -78,4 +78,42 @@ Let's embark on this epic coding adventure together and conquer the world of sof
 | `/events/{event_id}`      | GET    | Read details of a single event   |
 | `/events/`                | POST   | Add a new event                  |
 | `/events/{event_id}`      | PUT    | Edit/update an existing event    |
-| `/events/{event_id}`      | DELETE | Delete an event                  |
+| `/events/{event_id}`      | DELETE | Delete an event   
+
+
+# Quality Assurance
+Several critical issues were addressed to enhance the stability and reliability of the application:
+
+Primary Key Configuration: Resolved a TypeError by ensuring the creator_id field in the Event model is correctly defined with UUID(as_uuid=True) and a proper foreign key reference.
+
+Validation Error Handling: Fixed improper assertions in test_event_create_missing_title by accurately checking for missing fields in validation errors.
+
+Date Validation in Event Creation: Corrected the test_event_create_start_after_end to ensure that events cannot have a start date after the end date, aligning with business rules.
+
+Schema Consistency: Updated EventOut schema to match the creator_id type with the database model, preventing serialization errors.
+
+Authorization Checks: Enhanced the is_admin_or_manager utility to robustly handle user role verification, preventing unauthorized access and reducing 500 errors.
+
+New Tests Added
+To ensure comprehensive coverage and reliability, new tests were created:
+
+-Event Creation: Validates successful event creation with correct data.
+-Missing Title Validation: Ensures that creating an event without a title raises a validation error.
+-Start Date After End Date: Checks that an event cannot be created if the start date is after the end date.
+-Unauthorized Access: Verifies that users without proper roles cannot access event-related endpoints.
+-Event Retrieval: Tests fetching a specific event by ID.
+-Event Update: Ensures that events can be updated correctly.
+-Event Deletion: Validates that events can be deleted and are no longer retrievable.
+-List Events: Checks that the list of events is returned correctly.
+-Event Schema Output: Verifies the output schema of events matches expectations.
+-Authorization Enforcement: Ensures that only users with 'admin' or 'manager' roles can perform certain actions.
+
+Tests can be found in the app/tests directory.
+
+# New Features Implemented
+-Event Management Endpoints: Implemented CRUD operations for events, including creation, retrieval, updating, and deletion.
+-Role-Based Access Control: Introduced checks to ensure only users with 'admin' or 'manager' roles can perform certain actions.
+-Asynchronous Database Operations: Utilized AsyncSession for non-blocking database interactions, improving performance.
+-Comprehensive Test Suite: Expanded the test suite to cover new features and edge cases, ensuring robustness.
+
+For more detailed information on each feature and fix, refer to the respective test files and implementation details in the app/tests directory.               |
