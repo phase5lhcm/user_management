@@ -30,7 +30,7 @@ class EventUpdate(EventBase):
 class EventOut(EventBase):
     """Schema for returning event data to the client (e.g., GET or POST response)"""
     id: int
-    creator_id: int
+    creator_id: UUID
 
     class Config:
         orm_mode = True
