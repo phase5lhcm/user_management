@@ -38,6 +38,7 @@ from app.services.email_service import EmailService
 from app.services.jwt_service import create_access_token
 from app.dependencies import get_email_service
 from app.routers.user_routes import admin_or_manager_only
+from app.dependencies import get_current_user
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
 
@@ -49,6 +50,32 @@ engine = create_async_engine(TEST_DATABASE_URL, echo=settings.debug)
 AsyncTestingSessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 AsyncSessionScoped = scoped_session(AsyncTestingSessionLocal)
 
+#Factory method to override get_current_user dynamically
+def get_test_user_override(role="AUTHENTICATED"):
+    return lambda: {
+        "user_id": "test-user-id",
+        "role": role if isinstance(role, str) else role.name 
+    }
+
+@pytest.fixture
+def async_client_factory(db_session, email_service):
+    from httpx import AsyncClient
+    from app.main import app
+    from app.dependencies import get_db, get_email_service, get_current_user
+
+    def _get_client(override_user: bool = False, role: str = "AUTHENTICATED"):
+        if override_user:
+            app.dependency_overrides[get_current_user] = get_test_user_override(role)
+        else:
+            app.dependency_overrides.pop(get_current_user, None)
+
+        app.dependency_overrides[get_db] = lambda: db_session
+        app.dependency_overrides[get_email_service] = lambda: email_service
+
+        return AsyncClient(app=app, base_url="http://testserver")
+
+    return _get_client
+
 
 @pytest.fixture
 def email_service():
@@ -58,16 +85,13 @@ def email_service():
     return email_service
 
 
-# this is what creates the http client for your api tests
 @pytest.fixture
 async def async_client(db_session, email_service):
-
     async with AsyncClient(app=app, base_url="http://testserver") as client:
         try:
             yield client
         finally:
             app.dependency_overrides.clear()
-
 @pytest.fixture(scope="session", autouse=True)
 def initialize_database():
     try:
