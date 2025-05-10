@@ -48,5 +48,5 @@ app.include_router(user_routes.router)
 
 @app.exception_handler(Exception)
 async def exception_handler(request, exc):
-    print("🚨 Unhandled Exception:", traceback.format_exc())  # Add this
+    print("Unhandled Exception:", traceback.format_exc()) 
     return JSONResponse(status_code=500, content={"message": "An unexpected error occurred."})
