@@ -51,3 +51,31 @@ Remember, it's more important to make something work reliably and be reasonably 
 Don't forget to always have a working main branch deploying to Docker at all times. If you always have a working main branch, you will never be in jeopardy of receiving a very disappointing grade :-). Keep that main branch shining bright!
 
 Let's embark on this epic coding adventure together and conquer the world of software engineering! You've got this, coding rockstars! 🚀🌟✨
+
+## Enhancements to the Event Management System, by Christine Maynard 🌟
+
+🔨 Features Implemented 
+# Event Model
+* Created an Event SQLAlchemt model with:
+    - title, description, start and end date, create_id (this is a ForeignKey to User)
+    -Established a bi-directional relationship between User and Event models
+
+* Pydantic Schemas 
+    - Defined EventCreate for incoming request validation
+    - Defined EventOut for clean API responses
+    - Defined EventUpdate for partial or full updates
+
+* Authorization 
+    - Created is_admin_or_manager(), a utility function that takes an instance of User data to determine access to event management routes
+    - Role-based access is restricted to admins/managers for main CRUD operations
+
+
+# BREAD/API endpoints implemented in routers/event.py
+
+| Endpoint                  | Method | Description                      |
+|---------------------------|--------|----------------------------------|
+| `/events/`                | GET    | Browse all events                |
+| `/events/{event_id}`      | GET    | Read details of a single event   |
+| `/events/`                | POST   | Add a new event                  |
+| `/events/{event_id}`      | PUT    | Edit/update an existing event    |
+| `/events/{event_id}`      | DELETE | Delete an event                  |
