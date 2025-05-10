@@ -1,17 +1,18 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import datetime
+from typing import Optional
 
 class EventBase(BaseModel):
     """Base schema for Event model."""
-    title: str
-    description: str
+    title: str = Field(..., max_length=255, example="This is a title")
+    description: Optional[str] = Field(None, max_length=1000, example="This is a description")
     start_time: datetime
     end_time: datetime
 
 
 class EventCreate(EventBase):
     """Schema for creating a new event."""
-    pass
+    creator_id: int = Field(..., example=1)
 
 class EventUpdate(EventBase):
     """Schema for updating an existing event."""
