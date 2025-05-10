@@ -4,6 +4,9 @@ from datetime import datetime
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.database import Base
 from typing import TYPE_CHECKING
+from uuid import UUID
+from uuid import uuid4
+from sqlalchemy.dialects.postgresql import UUID
 
     
 if TYPE_CHECKING:
@@ -12,7 +15,8 @@ if TYPE_CHECKING:
 class Event(Base):
     __tablename__ = 'events'
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True, index=True)
+    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    creator_id: Mapped[UUID] = mapped_column(ForeignKey('users.id'), nullable=False)
     title: Mapped[str] = mapped_column(String, nullable=False)
     description: Mapped[str] = mapped_column(String, nullable=True)
     start_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)

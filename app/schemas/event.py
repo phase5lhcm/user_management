@@ -1,6 +1,7 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
 from typing import Optional
+from uuid import UUID
 
 class EventBase(BaseModel):
     """Base schema for Event model."""
@@ -12,7 +13,14 @@ class EventBase(BaseModel):
 
 class EventCreate(EventBase):
     """Schema for creating a new event."""
-    creator_id: int = Field(..., example=1)
+    creator_id: UUID = Field(..., example="d290f1ee-6c54-4b01-90e6-d701748f0851")
+
+    @field_validator("creator_id")
+    @classmethod
+    def validate_creator_id(cls, value: UUID) -> UUID:
+        if value.version != 4:
+            raise ValueError("creator_id must be a valid UUID v4")
+        return value
 
 class EventUpdate(EventBase):
     """Schema for updating an existing event."""
